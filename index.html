@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Guessing Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .game-container {
+            text-align: center;
+            padding: 20px;
+            border: 2px solid #333;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #word-display {
+            font-size: 24px;
+            margin: 20px 0;
+            letter-spacing: 5px;
+            font-weight: bold;
+            background-color: #f1f1f1;
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        #guess-input {
+            padding: 10px;
+            font-size: 16px;
+            width: 50px;
+            text-align: center;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-left: 10px;
+            cursor: pointer;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        #message {
+            color: #d9534f;
+            font-weight: bold;
+        }
+
+        #guessed-letters {
+            font-size: 14px;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Word Guessing Game</h1>
+        <p>Guess the hidden letters of the word!</p>
+
+        <div id="word-display"></div>
+
+        <input type="text" id="guess-input" placeholder="Enter your guess" maxlength="1">
+        <button id="guess-btn">Guess</button>
+
+        <p id="message"></p>
+        <p>Attempts: <span id="attempts">0</span></p>
+        <p>Guessed letters: <span id="guessed-letters"></span></p>
+    </div>
+
+    <script>
+        const words = ["javascript", "html", "css", "programming", "developer"];
+        let selectedWord = "";
+        let hiddenWord = [];
+        let guessedLetters = [];
+        let attempts = 0;
+
+        // Start a new game
+        function startGame() {
+            // Select a random word from the list
+            selectedWord = words[Math.floor(Math.random() * words.length)];
+            guessedLetters = [];
+            attempts = 0;
+
+            // Hide some letters of the word randomly
+            hiddenWord = selectedWord.split("").map(letter => Math.random() > 0.5 ? "_" : letter);
+
+            // Display the hidden word with underscores
+            updateWordDisplay();
+
+            // Reset message and guessed letters
+            document.getElementById("message").textContent = "";
+            document.getElementById("guessed-letters").textContent = "";
+            document.getElementById("attempts").textContent = attempts;
+        }
+
+        // Update the word display (with hidden letters)
+        function updateWordDisplay() {
+            const wordDisplay = hiddenWord.join(" ");
+            document.getElementById("word-display").textContent = wordDisplay;
+        }
+
+        // Handle the player's guess
+        function handleGuess() {
+            const guessInput = document.getElementById("guess-input");
+            const guess = guessInput.value.toLowerCase();
+            guessInput.value = ""; // Clear the input field
+
+            if (guess.length !== 1 || !/[a-z]/.test(guess)) {
+                document.getElementById("message").textContent = "Please enter a valid letter.";
+                return;
+            }
+
+            if (guessedLetters.includes(guess)) {
+                document.getElementById("message").textContent = "You've already guessed that letter.";
+                return;
+            }
+
+            guessedLetters.push(guess);
+            attempts++;
+            document.getElementById("attempts").textContent = attempts;
+
+            let correctGuess = false;
+            // Check if the guessed letter is in the word
+            for (let i = 0; i < selectedWord.length; i++) {
+                if (selectedWord[i] === guess && hiddenWord[i] === "_") {
+                    hiddenWord[i] = guess;
+                    correctGuess = true;
+                }
+            }
+
+            // Update the word display
+            updateWordDisplay();
+
+            // Provide feedback to the player
+            if (correctGuess) {
+                document.getElementById("message").textContent = "Correct guess!";
+            } else {
+                document.getElementById("message").textContent = "Incorrect guess!";
+            }
+
+            document.getElementById("guessed-letters").textContent = guessedLetters.join(", ");
+
+            // Check if the player has guessed all the letters
+            if (!hiddenWord.includes("_")) {
+                document.getElementById("message").textContent = `Congratulations! You guessed the word: ${selectedWord}`;
+            }
+        }
+
+        // Start a new game when the page loads
+        startGame();
+
+        // Event listener for the Guess button
+        document.getElementById("guess-btn").addEventListener("click", handleGuess);
+
+        // Allow pressing Enter key to guess
+        document.getElementById("guess-input").addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                handleGuess();
+            }
+        });
+    </script>
+</body>
+</html>
